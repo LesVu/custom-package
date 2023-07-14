@@ -1,0 +1,32 @@
+name: test build deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-arm64:
+    name: Test package on ARM64
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: none
+          distro: none
+          #base_image: arm64v8/r-base
+          base_image: --platform=linux/arm64 debian:bookworm
+          # githubToken: ${{ github.token }}
+
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y git
+
+          run: |
+            uname -m
+            cat /proc/cpuinfo
