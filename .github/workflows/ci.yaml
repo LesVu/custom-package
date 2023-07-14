@@ -43,9 +43,16 @@ jobs:
 
           install: |
             echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
-            apt-get update -q -y
-            apt-get install -q -y git jq build-essential ninja-build meson hwdata libcairo2-dev libpango1.0-dev wget cmake-extras cmake gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxml2-dev libdrm-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libpixman-1-dev libudev-dev libseat-dev seatd libxcb-dri3-dev libvulkan-dev libvulkan-volk-dev  vulkan-validationlayers-dev libvkfft-dev libgulkan-dev libegl-dev libgles2 libegl1-mesa-dev glslang-tools libinput-bin libinput-dev libxcb-composite0-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr
-            apt-get build-dep wlroots -q -y
+
+            apt-get update -q -y > /dev/null
+
+            apt-get install -q -y git jq build-essential ninja-build meson hwdata libcairo2-dev libpango1.0-dev wget cmake-extras \
+            cmake gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxml2-dev libdrm-dev libxkbcommon-x11-dev libxkbregistry-dev \
+            libxkbcommon-dev libpixman-1-dev libudev-dev libseat-dev seatd libxcb-dri3-dev libvulkan-dev libvulkan-volk-dev  vulkan-validationlayers-dev \
+            libvkfft-dev libgulkan-dev libegl-dev libgles2 libegl1-mesa-dev glslang-tools libinput-bin libinput-dev libxcb-composite0-dev libavutil-dev \
+            libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr > /dev/null
+
+            apt-get build-dep wlroots -q -y > /dev/null
 
           run: |
             cd Hyprland
@@ -56,9 +63,16 @@ jobs:
             meson build
             ninja -C build
             ninja -C build install
+            tar -cvf /arctifacts/hyprland.tar /arctifacts/usr
 
       - name: Show the artifact
         # Items placed in /artifacts in the container will be in
         # ${PWD}/artifacts on the host.
         run: |
           ls -al "${PWD}/artifacts"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ci_build
+          path: '${PWD}/artifacts/hyprland.tar'
