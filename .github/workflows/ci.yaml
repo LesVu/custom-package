@@ -63,13 +63,11 @@ jobs:
             meson build
             ninja -C build
             ninja -C build install
-            tar -cvf /arctifacts/hyprland.tar /arctifacts/usr
 
-      - name: Show the artifact
-        # Items placed in /artifacts in the container will be in
-        # ${PWD}/artifacts on the host.
+      - name: Packaging the build
         run: |
-          ls -al "${PWD}/artifacts"
+          tar -cvf hyprland.tar ${PWD}/artifacts/usr
+          mv hyprland.tar ${PWD}/artifacts
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
