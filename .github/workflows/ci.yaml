@@ -79,7 +79,7 @@ jobs:
     name: Build package on arm64
     runs-on: ubuntu-22.04
 
-    step:
+    steps:
       - name: checkout
         uses: actions/checkout@v3
 
