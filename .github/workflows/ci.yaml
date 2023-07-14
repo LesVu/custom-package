@@ -111,7 +111,7 @@ jobs:
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential ninja-build gettext cmake unzip curl > /dev/null
+            apt-get install -q -y git jq build-essential libunibilium-dev ninja-build gettext cmake unzip curl > /dev/null
 
           run: |
             cd neovim
