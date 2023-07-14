@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ci_build
-          path: '${PWD}/artifacts/hyprland.tar'
+          path: ${PWD}/artifacts/hyprland.tar
 
   neovim-debian:
     name: Build package on arm64
@@ -111,7 +111,7 @@ jobs:
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential libunibilium-dev ninja-build gettext cmake unzip curl > /dev/null
+            apt-get install -q -y git jq build-essential libunibilium-dev ninja-build gettext cmake unzip software-properties-common curl > /dev/null
 
           run: |
             cd neovim
@@ -124,4 +124,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: nvim_build
-          path: '${PWD}/artifacts/*.deb'
+          path: ${PWD}/artifacts/*.deb
