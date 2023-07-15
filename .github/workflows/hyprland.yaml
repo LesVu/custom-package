@@ -1,9 +1,6 @@
-name: Build CI
+name: Build Hyprland on debian
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -67,61 +64,9 @@ jobs:
       - name: Packaging the build
         run: |
           tar -cvf hyprland.tar ${PWD}/artifacts/usr
-          mv hyprland.tar ${PWD}/artifacts
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ci_build
-          path: ${PWD}/artifacts/hyprland.tar
-
-  neovim-debian:
-    name: Build package on arm64
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-
-      - name: checkout Neovim
-        uses: actions/checkout@v3
-        with:
-          repository: neovim/neovim
-          path: neovim
-          ref: stable
-
-      - name: Running build
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: none
-          distro: none
-          #base_image: arm64v8/r-base
-          base_image: --platform=linux/arm64 debian:bookworm
-          githubToken: ${{ github.token }}
-          setup: |
-            mkdir -p "${PWD}/artifacts"
-
-          env: | # YAML, but pipe character is necessary
-            DESTDIR: /artifacts
-
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
-
-          install: |
-            apt-get update -q -y > /dev/null
-
-            apt-get install -q -y git jq build-essential libunibilium-dev ninja-build gettext cmake unzip software-properties-common curl > /dev/null
-
-          run: |
-            cd neovim
-            make CMAKE_BUILD_TYPE=RelWithDebInfo
-            cd build
-            cpack -G DEB
-            mv *.deb /artifacts
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: nvim_build
-          path: ${PWD}/artifacts/*.deb
+          name: hyprland_debian
+          path: hyprland.tar
