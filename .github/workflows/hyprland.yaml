@@ -55,14 +55,18 @@ jobs:
             apt-get purge libinput-dev libinput-bin -q -y
 
           run: |
+            git clone https://gitlab.freedesktop.org/libinput/libinput --quiet
+            cd libinput
+            meson --prefix=/usr -Ddocumentation=false builddir/
+            ninja -C builddir/
+            ninja -C builddir/ install
             cd Hyprland
             cd subprojects
             git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
-            git clone https://gitlab.freedesktop.org/libinput/libinput --quiet
             git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
             git clone https://github.com/emersion/libliftoff --quiet
             cd ..
-            meson build --prefix=/artifacts/usr
+            meson build --prefix=/artifacts/usr --pkg-config-path /artifacts/usr
             ninja -C build
             ninja -C build install
 
