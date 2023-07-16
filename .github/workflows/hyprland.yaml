@@ -53,13 +53,9 @@ jobs:
             apt-get build-dep wayland -q -y > /dev/null
 
           run: |
-            git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
-            cd wayland
-            meson build/ --prefix=/artifacts/usr
-            ninja -C build/ install
-            cd ..
             cd Hyprland
             cd subprojects
+            git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
             git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
             git clone https://github.com/emersion/libliftoff --quiet
             cd ..
