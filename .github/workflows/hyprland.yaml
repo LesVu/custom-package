@@ -26,7 +26,7 @@ jobs:
           arch: none
           distro: none
           #base_image: arm64v8/r-base
-          base_image: --platform=linux/arm64 debian:bookworm
+          base_image: debian:bookworm
           githubToken: ${{ github.token }}
           setup: |
             mkdir -p "${PWD}/artifacts"
@@ -37,6 +37,7 @@ jobs:
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
             --volume "${PWD}/artifacts:/artifacts"
+            --platform=linux/arm64
 
           install: |
             echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
