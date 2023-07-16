@@ -40,15 +40,11 @@ jobs:
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential libunibilium-dev ninja-build gettext cmake unzip software-properties-common curl > /dev/null
+            apt-get install -q -y git jq build-essential tar unzip ninja-build gettext cmake unzip software-properties-common curl > /dev/null
 
           run: |
             cd neovim
-            mkdir .deps && cd .deps
-            cmake ../cmake.deps/
-            ninja
-            cd ..
-            make CMAKE_BUILD_TYPE=Release CMAKE_FLAGS="-D CI_BUILD=ON"
+            make CMAKE_BUILD_TYPE=Release
             cd build
             cpack -G DEB
             mv *.deb /artifacts
