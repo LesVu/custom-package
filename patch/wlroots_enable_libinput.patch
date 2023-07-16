@@ -1,0 +1,14 @@
+--- Hypr-orig/subprojects/wlroots/backend/libinput/meson.build	2023-07-16 17:03:58.264639629 +0000
++++ Hyprland/subprojects/wlroots/backend/libinput/meson.build	2023-07-16 17:06:31.446269964 +0000
+@@ -7,9 +7,9 @@
+ 	'libinput',
+ 	version: '>=1.14.0',
+ 	required: 'libinput' in backends,
+-	not_found_message: '\n'.join(msg),
++	fallback: 'libinput',
++        not_found_message: '\n'.join(msg),
+ )
+-
+ if not (libinput.found() and features['session'])
+ 	subdir_done()
+ endif

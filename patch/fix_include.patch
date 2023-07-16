@@ -1,0 +1,9 @@
+--- Hypr-orig/src/meson.build	2023-07-16 17:03:01.949040437 +0000
++++ Hyprland/src/meson.build	2023-07-16 17:02:39.204802197 +0000
+@@ -25,5 +25,6 @@
+     dependency('pango'),
+     dependency('pangocairo')
+   ],
++  include_directories : subproject('libinput').get_variable('includes_src'),
+   install : true
+ )

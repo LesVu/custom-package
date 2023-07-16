@@ -1,0 +1,11 @@
+--- Hypr-orig/subprojects/wlroots/meson.build	2023-07-16 17:03:58.274639906 +0000
++++ Hyprland/subprojects/wlroots/meson.build	2023-07-16 16:54:50.114385763 +0000
+@@ -176,7 +176,7 @@
+ 	meson.project_name(), wlr_files,
+ 	soversion: soversion.to_string(),
+ 	dependencies: wlr_deps,
+-	include_directories: [wlr_inc],
++	include_directories: [wlr_inc, subproject('libinput').get_variable('includes_src')],
+ 	install: true,
+ 	link_args: symbols_flag,
+ 	link_depends: symbols_file,
