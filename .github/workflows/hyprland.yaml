@@ -31,8 +31,8 @@ jobs:
           setup: |
             mkdir -p "${PWD}/artifacts"
 
-          env: | # YAML, but pipe character is necessary
-            DESTDIR: /artifacts
+          # env: | # YAML, but pipe character is necessary
+          #   DESTDIR: /artifacts
 
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
@@ -50,14 +50,20 @@ jobs:
             libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr > /dev/null
 
             apt-get build-dep wlroots -q -y > /dev/null
+            apt-get build-dep wayland -q -y > /dev/null
 
           run: |
+            git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
+            cd wayland
+            meson build/ --prefix=/artifacts/usr
+            ninja -C build/ install
+            cd ..
             cd Hyprland
             cd subprojects
             git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
             git clone https://github.com/emersion/libliftoff --quiet
             cd ..
-            meson build
+            meson build --prefix=/artifacts/usr
             ninja -C build
             ninja -C build install
 
