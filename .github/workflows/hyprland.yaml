@@ -60,6 +60,7 @@ jobs:
             meson --prefix=/usr -Ddocumentation=false builddir/
             ninja -C builddir/
             ninja -C builddir/ install
+            cd ..
             cd Hyprland
             cd subprojects
             git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
