@@ -6,7 +6,7 @@
  	required: 'libinput' in backends,
 -	not_found_message: '\n'.join(msg),
 +	fallback: 'libinput',
-+        not_found_message: '\n'.join(msg),
++   not_found_message: '\n'.join(msg),
  )
 -
  if not (libinput.found() and features['session'])
