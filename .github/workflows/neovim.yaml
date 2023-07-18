@@ -45,8 +45,8 @@ jobs:
           setup: |
             mkdir -p "${PWD}/artifacts"
 
-          env: | # YAML, but pipe character is necessary
-            DESTDIR: /artifacts
+          # env: | # YAML, but pipe character is necessary
+          #   DESTDIR: /artifacts
 
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
@@ -60,7 +60,6 @@ jobs:
 
           run: |
             cd neovim
-            patch -p1 < ../patch/neovim/fix_symlink.patch
             make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
             cd build
             cpack -G DEB
