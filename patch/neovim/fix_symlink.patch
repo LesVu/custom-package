@@ -1,11 +1,11 @@
 --- neovim-orig/cmake.deps/cmake/BuildLuajit.cmake	2023-07-18 14:03:55.915578623 +0000
-+++ neovim/cmake.deps/cmake/BuildLuajit.cmake	2023-07-18 13:57:49.372426974 +0000
-@@ -30,7 +30,7 @@
-   if(UNIX)
++++ neovim/cmake.deps/cmake/BuildLuajit.cmake	2023-07-18 15:21:09.177339992 +0000
+@@ -27,7 +27,7 @@
+     DEPENDS "${_luajit_DEPENDS}")
+ 
+   # Create symlink for development version manually.
+-  if(UNIX)
++  if(NOT UNIX)
      add_custom_command(
        TARGET ${_luajit_TARGET}
--      COMMAND ${CMAKE_COMMAND} -E create_symlink luajit-2.1.0-beta3 ${DEPS_BIN_DIR}/${_luajit_TARGET})
-+      COMMAND ln -sf luajit-2.1.0-beta3 usr/bin/${_luajit_TARGET})
-   endif()
- endfunction()
- 
+       COMMAND ${CMAKE_COMMAND} -E create_symlink luajit-2.1.0-beta3 ${DEPS_BIN_DIR}/${_luajit_TARGET})
