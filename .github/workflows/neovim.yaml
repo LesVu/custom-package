@@ -30,6 +30,7 @@ jobs:
 
       - name: ccache cache files
         uses: actions/cache@v3
+        if: always()
         with:
           path: ccache
           key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
@@ -61,11 +62,12 @@ jobs:
             apt-get install -q -y git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev > /dev/null
 
           run: |
-            cd neovim
-            make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
-            cd build
-            cpack -G DEB
-            mv *.deb /artifacts
+            return 1
+            # cd neovim
+            # make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
+            # cd build
+            # cpack -G DEB
+            # mv *.deb /artifacts
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
