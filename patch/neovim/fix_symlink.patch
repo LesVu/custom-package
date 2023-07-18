@@ -5,7 +5,7 @@
      add_custom_command(
        TARGET ${_luajit_TARGET}
 -      COMMAND ${CMAKE_COMMAND} -E create_symlink luajit-2.1.0-beta3 ${DEPS_BIN_DIR}/${_luajit_TARGET})
-+      COMMAND ln -sf luajit-2.1.0-beta3 ${DEPS_BIN_DIR}/${_luajit_TARGET})
++      COMMAND ln -sf ${DEPS_BIN_DIR}/luajit-2.1.0-beta3 ${DEPS_BIN_DIR}/${_luajit_TARGET})
    endif()
  endfunction()
  
