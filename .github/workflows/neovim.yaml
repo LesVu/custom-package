@@ -56,7 +56,7 @@ jobs:
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev > /dev/null
+            apt-get install -q -y git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev
 
           run: |
             cd neovim
