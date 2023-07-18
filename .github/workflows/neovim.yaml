@@ -60,6 +60,7 @@ jobs:
 
           run: |
             cd neovim
+            patch -p1 < ../patch/neovim/fix_symlink.patch
             make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
             cd build
             cpack -G DEB
