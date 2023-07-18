@@ -19,6 +19,20 @@ jobs:
           path: neovim
           ref: stable
 
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: ccache cache files
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
+          restore-keys: |
+            neovim_arm64-ccache-
+
       - name: Running build
         uses: uraimo/run-on-arch-action@v2
         with:
@@ -29,6 +43,7 @@ jobs:
           githubToken: ${{ github.token }}
           setup: |
             mkdir -p "${PWD}/artifacts"
+            mkdir -p "${PWD}/ccache"
 
           env: | # YAML, but pipe character is necessary
             DESTDIR: /artifacts
@@ -36,11 +51,12 @@ jobs:
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
             --volume "${PWD}/artifacts:/artifacts"
+            --volume "${PWD}/ccache:/root/.ccache"
 
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev > /dev/null
+            apt-get install -q -y git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev > /dev/null
 
           run: |
             cd neovim
