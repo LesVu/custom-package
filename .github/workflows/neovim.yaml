@@ -44,7 +44,7 @@ jobs:
 
           run: |
             cd neovim
-            make CMAKE_BUILD_TYPE=Release
+            make NVIM_BUILD_TYPE=Release
             cd build
             cpack -G DEB
             mv *.deb /artifacts
