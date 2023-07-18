@@ -40,11 +40,11 @@ jobs:
           install: |
             apt-get update -q -y > /dev/null
 
-            apt-get install -q -y git jq build-essential libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl > /dev/null
+            apt-get install -q -y git jq build-essential libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev > /dev/null
 
           run: |
             cd neovim
-            make NVIM_BUILD_TYPE=Release
+            make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
             cd build
             cpack -G DEB
             mv *.deb /artifacts
