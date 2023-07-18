@@ -29,13 +29,10 @@ jobs:
         run: mkdir -p "${PWD}/ccache"
 
       - name: ccache cache files
-        uses: actions/cache@v3
-        if: always()
+        uses: actions/cache/restore@v3
         with:
           path: ccache
-          key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
-          restore-keys: |
-            neovim_arm64-ccache-
+          key: neovim_arm64-ccache-
 
       - name: Running build
         uses: uraimo/run-on-arch-action@v2
@@ -68,6 +65,12 @@ jobs:
             # cd build
             # cpack -G DEB
             # mv *.deb /artifacts
+
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: cache
+          key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
