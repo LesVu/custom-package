@@ -17,19 +17,19 @@ jobs:
           pacman -Sy sudo --noconfirm
           useradd -m user || true
           echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-          cd /home/user
-          su - user
 
       - name: checkout
         uses: actions/checkout@v3
 
       - name: Install Dependencies
         run: |
-          sudo pacman -Syu --noconfirm
-          sudo pacman -S base-devel --noconfirm
+          pacman -Syu --noconfirm
+          pacman -S base-devel --noconfirm
 
       - name: Build Package
         run: |
+          chown -R user:user linux-kukui
+          su - user
           cd linux-kukui
           mkdir result
           CARCH=aarch64 PKGDEST=result makepkg -s --noconfirm
