@@ -29,7 +29,7 @@ jobs:
       - name: Build Package
         run: |
           chown -R user:user linux-kukui
-          su - user
+          su user
           cd linux-kukui
           mkdir result
           CARCH=aarch64 PKGDEST=result makepkg -s --noconfirm
