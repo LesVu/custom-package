@@ -29,10 +29,9 @@ jobs:
       - name: Build Package
         run: |
           chown -R user:user linux-kukui
-          su user
           cd linux-kukui
           mkdir result
-          CARCH=aarch64 PKGDEST=result makepkg -s --noconfirm
+          su user -s /bin/bash -c "CARCH=aarch64 PKGDEST=result makepkg -s --noconfirm"
 
       - name: List
         run: |
