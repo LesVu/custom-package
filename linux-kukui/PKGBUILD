@@ -1,0 +1,288 @@
+# AArch64 multi-platform
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+buildarch=8
+
+pkgbase=linux-kukui
+_srcname=linux-6.2
+_kernelname=${pkgbase#linux}
+_desc="AArch64 multi-platform"
+pkgver=6.2.10
+pkgrel=1
+arch=('any')
+url="http://www.kernel.org/"
+license=('GPL2')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'dtc' 'clang' 'lld' 'llvm')
+options=('!strip')
+source=("http://www.kernel.org/pub/linux/kernel/v6.x/${_srcname}.tar.xz"
+        "http://www.kernel.org/pub/linux/kernel/v6.x/patch-${pkgver}.xz"
+        '0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
+        '0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
+        'config'
+        '01-RESEND-v2-1-2-drm-panel-Add-inx-Himax8279d-MIPI-DSI-LCD-panel-driver.patch'
+        '02-01-10-drm-panel-himax8279d-Use-dev_err_probe-to-simplify-code.patch.off'
+        '03-v2-1-4-arm64-dts-mt8183-Add-katsu-board.patch'
+        '04-v2-2-4-arm64-dts-mt8183-Add-kukui-jacuzzi-makomo-board.patch'
+        '05-v2-3-4-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-katsu.patch'
+        '06-v2-4-4-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-jacuzzi-makomo.patch'
+        '07-1-2-arm64-dts-mt8183-Add-kukui-jacuzzi-cerise-board.patch'
+        '08-2-2-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-jacuzzi-cerise.patch'
+        '09-add-new-dtbs-to-makefile.patch'
+        'mt8183-cadmium-kukui.enable-ite.patch'
+        'mt8183-fix-bluetooth.patch'
+        'mt8183-kukui-disable-unsupported-thermal-zones.patch'
+        'mt8183-kukui-jacuzzi-fennel14-rt1015p-sound.patch'
+        'mt8183-kukui-jacuzzi-fix-display-resume.patch'
+        'mt8183-kukui-jacuzzi-hack-dpms-resume.patch'
+        'mt81xx-fix-low-speed-usb-devices.patch'
+	'linux.preset'
+        '60-linux.hook'
+        '90-linux.hook'
+      )
+prepare() {
+  cd $_srcname
+
+  echo "Setting version..."
+  scripts/setlocalversion --save-scmversion
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
+
+  # add upstream patch
+  git apply --whitespace=nowarn ../patch-${pkgver}
+
+  # ALARM patches
+  git apply ../0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
+  git apply ../0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch
+  patch -p1 < ../01-RESEND-v2-1-2-drm-panel-Add-inx-Himax8279d-MIPI-DSI-LCD-panel-driver.patch
+  patch -p1 < ../02-01-10-drm-panel-himax8279d-Use-dev_err_probe-to-simplify-code.patch.off
+  patch -p1 < ../03-v2-1-4-arm64-dts-mt8183-Add-katsu-board.patch
+  patch -p1 < ../04-v2-2-4-arm64-dts-mt8183-Add-kukui-jacuzzi-makomo-board.patch
+  patch -p1 < ../05-v2-3-4-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-katsu.patch
+  patch -p1 < ../06-v2-4-4-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-jacuzzi-makomo.patch
+  patch -p1 < ../07-1-2-arm64-dts-mt8183-Add-kukui-jacuzzi-cerise-board.patch
+  patch -p1 < ../08-2-2-dt-bindings-arm64-dts-mediatek-Add-mt8183-kukui-jacuzzi-cerise.patch
+  patch -p1 < ../09-add-new-dtbs-to-makefile.patch
+  patch -p1 < ../mt8183-cadmium-kukui.enable-ite.patch
+  patch -p1 < ../mt8183-fix-bluetooth.patch
+  patch -p1 < ../mt8183-kukui-disable-unsupported-thermal-zones.patch
+  patch -p1 < ../mt8183-kukui-jacuzzi-fennel14-rt1015p-sound.patch
+  patch -p1 < ../mt8183-kukui-jacuzzi-fix-display-resume.patch
+  patch -p1 < ../mt8183-kukui-jacuzzi-hack-dpms-resume.patch
+  patch -p1 < ../mt81xx-fix-low-speed-usb-devices.patch
+
+  cat "${srcdir}/config" > ./.config
+}
+
+build() {
+  cd ${_srcname}
+  export ARCH=arm64
+  export LLVM=1
+  export KCFLAGS="-Wno-error=incompatible-pointer-types-discards-qualifiers"
+
+  # get kernel version
+  make prepare
+  make -s kernelrelease > version
+
+  # build!
+  unset LDFLAGS
+  make ${MAKEFLAGS} Image Image.gz modules
+  # Generate device tree blobs with symbols to support applying device tree overlays in U-Boot
+  make ${MAKEFLAGS} DTC_FLAGS="-@" dtbs
+
+  # make ${MAKEFLAGS} -C tools/perf 
+  # make ${MAKEFLAGS} -C power/cpupower
+}
+
+_package() {
+  pkgdesc="The Linux Kernel and modules - ${_desc}"
+  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
+  optdepends=('wireless-regdb: to set the correct wireless channels of your country')
+  provides=("linux=${pkgver}" "WIREGUARD-MODULE")
+  conflicts=('linux' 'linux-aarch64')
+  backup=("etc/mkinitcpio.d/${pkgbase}.preset")
+  install=${pkgname}.install
+
+  cd $_srcname
+  local kernver="$(<version)"
+  local modulesdir="$pkgdir/usr/lib/modules/$kernver"
+
+  echo "Installing boot image and dtbs..."
+  install -Dm644 arch/arm64/boot/Image{,.gz} -t "${pkgdir}/boot"
+  make INSTALL_DTBS_PATH="${pkgdir}/boot/dtbs" dtbs_install
+
+  echo "Installing modules..."
+  make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
+
+  #install -Dm644 tools/perf/perf -t "${modulesdir}/tools"
+  #install -Dm644 tools/power/cpupower/cpupower -t "${modulesdir}/tools"
+  #install -Dm644 tools/power/cpupower/libcpupower.so.0.0.1 -T "${modulesdir}/tools/libcpupower.so.0"
+
+  # remove build and source links
+  rm "$modulesdir"/{source,build}
+
+  # sed expression for following substitutions
+  local _subst="
+    s|%PKGBASE%|${pkgbase}|g
+    s|%KERNVER%|${kernver}|g
+  "
+
+  # install mkinitcpio preset file
+  sed "${_subst}" ../linux.preset |
+    install -Dm644 /dev/stdin "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+
+  # install pacman hooks
+  sed "${_subst}" ../60-linux.hook |
+    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/60-${pkgbase}.hook"
+  sed "${_subst}" ../90-linux.hook |
+    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgbase}.hook"
+}
+
+_package-headers() {
+  pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
+  provides=("linux-headers=${pkgver}")
+  conflicts=('linux-headers')
+
+  cd $_srcname
+  local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+
+  echo "Installing build files..."
+  install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
+    localversion.* version vmlinux
+  install -Dt "$builddir/kernel" -m644 kernel/Makefile
+  install -Dt "$builddir/arch/arm64" -m644 arch/arm64/Makefile
+  cp -t "$builddir" -a scripts
+
+  # add xfs and shmem for aufs building
+  mkdir -p "$builddir"/{fs/xfs,mm}
+
+  echo "Installing headers..."
+  cp -t "$builddir" -a include
+  cp -t "$builddir/arch/arm64" -a arch/arm64/include
+  install -Dt "$builddir/arch/arm64/kernel" -m644 arch/arm64/kernel/asm-offsets.s
+  mkdir -p "$builddir/arch/arm"
+  cp -t "$builddir/arch/arm" -a arch/arm/include
+
+  install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
+  install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+
+  # https://bugs.archlinux.org/task/13146
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # https://bugs.archlinux.org/task/20402
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
+  # https://bugs.archlinux.org/task/71392
+  install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
+
+  echo "Installing KConfig files..."
+  find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
+
+  echo "Removing unneeded architectures..."
+  local arch
+  for arch in "$builddir"/arch/*/; do
+    [[ $arch = */arm64/ || $arch == */arm/ ]] && continue
+    echo "Removing $(basename "$arch")"
+    rm -r "$arch"
+  done
+
+  echo "Removing documentation..."
+  rm -r "$builddir/Documentation"
+
+  echo "Removing broken symlinks..."
+  find -L "$builddir" -type l -printf 'Removing %P\n' -delete
+
+  echo "Removing loose objects..."
+  find "$builddir" -type f -name '*.o' -printf 'Removing %P\n' -delete
+
+  echo "Stripping build tools..."
+  local file
+  while read -rd '' file; do
+    case "$(file -bi "$file")" in
+      application/x-sharedlib\;*)      # Libraries (.so)
+        strip -v $STRIP_SHARED "$file" ;;
+      application/x-archive\;*)        # Libraries (.a)
+        strip -v $STRIP_STATIC "$file" ;;
+      application/x-executable\;*)     # Binaries
+        strip -v $STRIP_BINARIES "$file" ;;
+      application/x-pie-executable\;*) # Relocatable binaries
+        strip -v $STRIP_SHARED "$file" ;;
+    esac
+  done < <(find "$builddir" -type f -perm -u+x ! -name vmlinux -print0)
+
+  echo "Adding symlink..."
+  mkdir -p "$pkgdir/usr/src"
+  ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
+}
+
+# _package-chromebook() {
+#   pkgdesc="The Linux Kernel - ${_desc} - Chromebooks"
+#   depends=('linux-aarch64')
+#   conflicts=('linux-aarch64-rc-chromebook')
+#   install=${pkgname}.install
+#
+#   cd ${_srcname}
+#
+#   mkdir -p "${pkgdir}/boot"
+#
+#   image=arch/arm64/boot/Image
+#
+#   chromeos_boards=(
+#     'elm'
+#     'gru'
+#     'kukui'
+#     'trogdor'
+#     'asurada'
+#   )
+#   chromebook_dtbs=($(for b in ${chromeos_boards[@]}; do find arch/arm64/boot -name "*${b}*.dtb" | LC_COLLATE=C sort; done))
+#
+#   lz4 -20 -z -f -m ${image}
+#   echo ${chromebook_dtbs[@]} | ../generate_chromebook_its.sh ${image}.lz4 arm64 lz4 > kernel.its
+#
+#   mkimage -D "-I dts -O dtb -p 2048" -f kernel.its vmlinux.uimg
+#   dd if=/dev/zero of=bootloader.bin bs=512 count=1
+#   echo "console=tty0 console=ttyS2,115200n8 earlyprintk=ttyS2,115200n8 console=ttyMSM0,115200n8 init=/sbin/init root=PARTUUID=%U/PARTNROFF=1 rootwait rw noinitrd" > cmdline
+#   vbutil_kernel \
+#     --pack vmlinux.kpart \
+#     --version 1 \
+#     --vmlinuz vmlinux.uimg \
+#     --arch aarch64 \
+#     --keyblock ../kernel.keyblock \
+#     --signprivate ../kernel_data_key.vbprivk \
+#     --config cmdline \
+#     --bootloader bootloader.bin
+#
+#   cp vmlinux.kpart "${pkgdir}/boot"
+# }
+
+pkgname=("${pkgbase}" "${pkgbase}-headers")
+for _p in ${pkgname[@]}; do
+  eval "package_${_p}() {
+    _package${_p#${pkgbase}}
+  }"
+done
+sha256sums=('74862fa8ab40edae85bb3385c0b71fe103288bce518526d63197800b3cbdecb1'
+            '399a93fbdf775bb62e6e2f1a36e3391dbf26f427c0a5bef58f028c6ce1966ab0'
+            '013ab7f5bcf2cd486e819fb13fde1f673ac72978984a8befea13938eaf8ddd8e'
+            'bcb8a42654df5f9670367950daaa01b165c15618f827d18b7b2a8d53d39227a4'
+            '6747b7089366771bc73fcfbeb08135b345efe13a504c91e262f429cd19ee801c'
+            'e785520c9c598d2733492d266c20a17bb9e4924b40e00100c49e071b1bc4bf0b'
+            '9b0fa894e80c9156d145fc66361168cc6c931955b2a93bcac743b366338cd8f1'
+            'a09a8dc42ecee910403641d83d7af1c005a5bbc03455cbe7188ad698bab44e1a'
+            'b36847e44c59fda7c0b30facdb2969f4bfca90373a74e7b277858f2d1c6bd6c1'
+            '23da57d6fde373847ed53b70814b6962b7f3bdab4be861d583a454b29ef422eb'
+            '73cadd04160e077dd5a38663dda605771803e6d8a1a301a15d0b3609af563eeb'
+            '11070eef54ac4e885d3d3921981d4c1db4fc59173120c91a55307ad231ce4526'
+            '369c77e95a752500ba974950088b42f2ccca5e140bd2f5752681f81aa6c3b1f9'
+            'a250841bd6256f4ed586d182084f2ecec1081c677cbf0d4c26aa7cecb695faf4'
+            'bf6d96578e69d0f48d7174b69a50b3c5e7887853a13ca2b8cdc9305743fda68d'
+            '3a8e77c5e3f6a5918f0952ef0cb5b1090ea895ff0dc45e9b139a2d6881e60a51'
+            'ccd9015e3ee102e90d4535b4df55c01ded26e8f79bcddc30462e3ba5cbdb847f'
+            '1e9d0819293e4a721ebd54125b07e030ba339edc6ce093b157b9e7d1e44618ce'
+            'cfdd95970d34361abc40053f28805a5e2a6d1715e5a40fc4a578297d4276c445'
+            'a015710dcafac109d25bcff2af7dbef1a0106cb8f196042ee03f2dcc1258fc50'
+            '880de9897ad1a757919de9092a3e74d9f0fc3bed3536b4b10564a4dca1a2a307'
+            '6837b3e2152f142f3fff595c6cbd03423f6e7b8d525aac8ae3eb3b58392bd255'
+            '452b8d4d71e1565ca91b1bebb280693549222ef51c47ba8964e411b2d461699c'
+            '71df1b18a3885b151a3b9d926a91936da2acc90d5e27f1ad326745779cd3759d')
