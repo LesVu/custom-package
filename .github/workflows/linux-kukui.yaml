@@ -18,7 +18,7 @@ jobs:
       - name: Build Arch Linux package
         uses: FFY00/build-arch-package@v1
         with:
-          PKGBUILD: linux-kukui/PKGBUILD
+          PKGBUILD: $GITHUB_WORKSPACE/linux-kukui/PKGBUILD
 
       - name: List
         run: |
