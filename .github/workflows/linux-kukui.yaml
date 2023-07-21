@@ -12,13 +12,20 @@ jobs:
       options: --privileged
 
     steps:
+      - name: Create user
+        run: |
+          useradd -m user || true
+          echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          cd /home/user
+          su - user
+
       - name: checkout
         uses: actions/checkout@v3
 
       - name: Install Dependencies
         run: |
-          pacman -Syu --noconfirm
-          pacman -S base-devel --noconfirm
+          sudo pacman -Syu --noconfirm
+          sudo pacman -S base-devel --noconfirm
 
       - name: Build Package
         run: |
