@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Create user
         run: |
-          pacman -S sudo --noconfirm
+          pacman -Sy sudo --noconfirm
           useradd -m user || true
           echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           cd /home/user
