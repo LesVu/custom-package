@@ -35,7 +35,7 @@ jobs:
 
       - name: List
         run: |
-          result
+          ls result
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
