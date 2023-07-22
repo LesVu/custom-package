@@ -35,10 +35,10 @@ jobs:
 
       - name: List
         run: |
-          ls result
+          ls linux-kukui/result
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: linux-kukui
-          path: result/*
+          path: linux-kukui/result/*
