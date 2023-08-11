@@ -77,6 +77,7 @@ build() {
   cd ${_srcname}
   export ARCH=arm64
   export LLVM=1
+  export CROSS_COMPILE=aarch64-linux-gnu-
   export KCFLAGS="-Wno-error=incompatible-pointer-types-discards-qualifiers"
 
   # get kernel version
