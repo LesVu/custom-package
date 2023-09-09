@@ -40,7 +40,7 @@ jobs:
             apt-get build-dep libdrm -q -y > /dev/null
             apt-get -q -y install python3-dev x11proto-gl-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libx11-xcb-dev \
             libxcb-glx0-dev libxxf86vm-dev libxcb-dri2-0-dev libxcb-xfixes0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev \
-            libxshmfence-dev libxrandr-dev llvm-dev python3-mako python3-setuptools \
+            libxshmfence-dev libxrandr-dev llvm-dev python3-mako python3-pip python3-setuptools \
             pkg-config build-essential zlib1g-dev git bison flex libxcb-shm0-dev > /dev/null
             apt purge -q -y meson > /dev/null
             pip3 install meson
