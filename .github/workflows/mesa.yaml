@@ -1,0 +1,80 @@
+name: Build Mesa
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mesa-arm64:
+    name: Build package on arm64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Running build
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: none
+          distro: none
+          #base_image: arm64v8/r-base
+          base_image: --platform=linux/arm64 debian:bullseye
+          githubToken: ${{ github.token }}
+          setup: |
+            mkdir -p "${PWD}/artifacts"
+
+          # env: | # YAML, but pipe character is necessary
+          #   DESTDIR: /artifacts
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
+
+          install: |
+            echo "deb-src http://deb.debian.org/debian/ bullseye contrib main non-free non-free-firmware" >> /etc/apt/sources.list
+
+            apt-get update -q -y > /dev/null
+
+            apt-get build-dep wayland -q -y > /dev/null
+            apt-get build-dep mesa -q -y > /dev/null
+            apt-get build-dep libdrm -q -y > /dev/null
+            apt-get -q -y install python3-dev x11proto-gl-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libx11-xcb-dev \
+            libxcb-glx0-dev libxxf86vm-dev libxcb-dri2-0-dev libxcb-xfixes0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev \
+            libxshmfence-dev libxrandr-dev llvm-dev meson python3-mako python3-setuptools libwayland-dev wayland-protocols \
+            libwayland-egl-backend-dev pkg-config build-essential zlib1g-dev git bison flex libxcb-shm0-dev > /dev/null
+
+          run: |
+            git clone https://gitlab.freedesktop.org/mesa/drm.git -b libdrm-2.4.116
+            git clone https://gitlab.freedesktop.org/wayland/wayland-protocols.git -b 1.32
+            git clone https://gitlab.freedesktop.org/mesa/mesa.git -b mesa-23.1.7
+
+            # DRM
+            cd drm
+            meson build -Dnouveau=disabled -Dfreedreno=enabled -Dtegra=disabled -Dexynos=disabled -Detnaviv=disabled -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dvmwgfx=disabled -Domap=disabled --prefix=/opt/mesa
+            ninja -C build -j 2
+            DESTDIR=/artifacts ninja -C build install
+            cd ..
+
+            # Wayland-Protocols
+            cd wayland-protocols
+            meson build --buildtype=release --prefix=/opt/mesa
+            ninja -C build -j 2
+            DESTDIR=/artifacts ninja -C build install
+            cd ..
+
+            # Mesa
+            cd mesa
+            meson build -Dvulkan-drivers=freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=debugoptimized --prefix=/opt/mesa
+            ninja -C build -j 2
+            DESTDIR=/artifacts ninja -C build install
+            cd ..
+
+      - name: Packaging the build
+        run: |
+          tar -cvf mesa.tar ${PWD}/artifacts/opt/mesa
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mesa
+          path: mesa.tar
