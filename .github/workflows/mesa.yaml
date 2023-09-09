@@ -47,10 +47,18 @@ jobs:
             git clone https://gitlab.freedesktop.org/mesa/drm.git -b libdrm-2.4.116
             git clone https://gitlab.freedesktop.org/wayland/wayland-protocols.git -b 1.32
             git clone https://gitlab.freedesktop.org/mesa/mesa.git -b mesa-23.1.7
+            git clone https://gitlab.freedesktop.org/wayland/wayland.git -b 1.22.0
 
             # DRM
             cd drm
-            meson build -Dnouveau=disabled -Dfreedreno=enabled -Dtegra=disabled -Dexynos=disabled -Detnaviv=disabled -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dvmwgfx=disabled -Domap=disabled --prefix=/opt/mesa
+            meson build -Dnouveau=disabled -Dvc4=disabled -Dfreedreno=enabled -Dtegra=disabled -Dexynos=disabled -Detnaviv=disabled -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dvmwgfx=disabled -Domap=disabled --prefix=/opt/mesa
+            ninja -C build -j 2
+            DESTDIR=/artifacts ninja -C build install
+            cd ..
+
+            # Wayland
+            cd wayland
+            meson build --buildtype=release --prefix=/opt/mesa
             ninja -C build -j 2
             DESTDIR=/artifacts ninja -C build install
             cd ..
