@@ -67,14 +67,14 @@ jobs:
 
             # Wayland-Protocols
             cd wayland-protocols
-            meson build --buildtype=release --prefix=/opt/mesa
+            meson build --buildtype=release --prefix=/opt/mesa --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig
             ninja -C build -j 2
             ninja -C build install
             cd ..
 
             # Mesa
             cd mesa
-            meson build -Dvulkan-drivers=freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=debugoptimized --prefix=/opt/mesa
+            meson build --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig -Dvulkan-drivers=freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=debugoptimized --prefix=/opt/mesa
             ninja -C build -j 2
             ninja -C build install
             cd ..
