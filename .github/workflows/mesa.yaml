@@ -62,14 +62,14 @@ jobs:
 
             # Wayland
             cd wayland
-            meson build --buildtype=release --prefix=/opt/mesa
+            meson build --buildtype=release --prefix=/opt/mesa -Dtests=false -Ddocumentation=false
             ninja -C build -j 2
             ninja -C build install
             cd ..
 
             # Wayland-Protocols
             cd wayland-protocols
-            meson build --buildtype=release --prefix=/opt/mesa --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig
+            meson build --buildtype=release --prefix=/opt/mesa -Dtests=false --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig
             ninja -C build -j 2
             ninja -C build install
             cd ..
