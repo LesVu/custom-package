@@ -17,6 +17,7 @@ jobs:
           path: hangover
           ref: master
           submodules: recursive
+          fetch-depth: 1
 
       - name: free disk space
         run: |
@@ -46,27 +47,25 @@ jobs:
 
       - name: build fex
         run: |
-          pwd
-          mkdir -p fex/build
-          cd fex/build
+          mkdir -p hangover/fex/build
+          cd hangover/fex/build
           CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_LTO=True -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -DENABLE_X86_HOST_DEBUG=True ..
           make -j$(nproc) FEXCore_shared
 
       - name: build wine
         run: |
-          pwd
           export PATH=$PWD/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64/bin:$PATH
-          mkdir -p wine/build
-          mkdir -p $PWD/artifacts
-          cd wine/build
+          mkdir -p $HOME/artifacts
+          mkdir -p hangover/wine/build
+          cd hangover/wine/build
           ../configure --enable-win64 --with-mingw --enable-archs=i386,x86_64,arm --without-x --without-fontconfig --disable-tests
           make -j$(nproc) -C dlls/fexcore
           make -j$(nproc)
-          DESTDIR=$PWD/artifacts make install
+          DESTDIR=$HOME/artifacts make install
 
       - name: Packaging the build
         run: |
-          tar -cvf hangover.tar ${PWD}/artifacts/usr
+          tar -cvf hangover.tar ${HOME}/artifacts/usr
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
