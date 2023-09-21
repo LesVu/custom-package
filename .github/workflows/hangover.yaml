@@ -1,0 +1,62 @@
+name: Build Hangover
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_x86_64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt-get install -y libepoxy-dev libglib2.0-dev libsdl2-dev ninja-build clang
+
+      - name: get shallow submodule
+        run: git submodule update --init --recursive --depth 1
+
+      - name: get llvm-mingw
+        run: |
+          uname -a
+          wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
+          tar -xf llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
+          rm llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
+
+      - name: build fex
+        run: |
+          mkdir -p fex/build
+          cd fex/build
+          CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_LTO=True -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -DENABLE_X86_HOST_DEBUG=True ..
+          make -j$(nproc) FEXCore_shared
+
+      - name: build wine
+        run: |
+          export PATH=$PWD/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64/bin:$PATH
+          mkdir -p wine/build
+          mkdir -p $PWD/artifacts
+          cd wine/build
+          ../configure --enable-win64 --with-mingw --enable-archs=i386,x86_64,arm --without-x --without-fontconfig --disable-tests
+          make -j$(nproc) -C dlls/fexcore
+          make -j$(nproc)
+          DESTDIR=$PWD/artifacts make install
+
+      - name: Packaging the build
+        run: |
+          tar -cvf hangover.tar ${PWD}/artifacts/usr
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hangover
+          path: hangover.tar
