@@ -35,12 +35,12 @@ jobs:
           key: neovim_arm64-ccache-
 
       - name: Running build
-        uses: uraimo/run-on-arch-action@v2
+        uses: LesVu/run-on-arch-action@v2
         with:
-          arch: none
-          distro: none
+          arch: aarch64
+          distro: bookworm
           #base_image: arm64v8/r-base
-          base_image: --platform=linux/arm64 debian:bookworm
+          # base_image: --platform=linux/arm64 debian:bookworm
           githubToken: ${{ github.token }}
           setup: |
             mkdir -p "${PWD}/artifacts"
@@ -71,8 +71,11 @@ jobs:
           path: ccache
           key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Move to debian repo
+        run: |
+          mv artifacts/*.deb debian_repo
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          name: nvim_debian
-          path: artifacts/*.deb
+          file_pattern: "debian_repo/*"
