@@ -35,7 +35,7 @@ jobs:
           key: neovim_arm64-ccache-
 
       - name: Running build
-        uses: LesVu/run-on-arch-action@v2
+        uses: LesVu/run-on-arch-action@main
         with:
           arch: aarch64
           distro: bookworm
