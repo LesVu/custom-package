@@ -41,7 +41,6 @@ jobs:
           distro: bookworm
           #base_image: arm64v8/r-base
           # base_image: --platform=linux/arm64 debian:bookworm
-          githubToken: ${{ github.token }}
           setup: |
             mkdir -p "${PWD}/artifacts"
 
@@ -53,16 +52,17 @@ jobs:
             --volume "${PWD}/artifacts:/artifacts"
             --volume "${PWD}/ccache:/root/.ccache"
 
-          install: |
-            apt-get update -q -y > /dev/null
-
-            apt-get install -q -y git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip software-properties-common curl libunibilium-dev
+          dockerfile_command: |
+            RUN apt-get update && apt-get install -q -y \
+            git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip \
+            software-properties-common curl libunibilium-dev \
+            && rm -rf /var/lib/apt/lists/*
 
           run: |
             cd neovim
             make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
             cd build
-            cpack -G DEB
+            cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=neovim -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
             mv *.deb /artifacts
 
       - uses: actions/cache/save@v3
@@ -73,7 +73,29 @@ jobs:
 
       - name: Move to debian repo
         run: |
-          mv artifacts/*.deb debian_repo
+          mv artifacts/*.deb debian_repo/pool
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: List GPG keys
+        run: gpg -K
+
+      - name: Write new package to repo
+        run: |
+          cd $GITHUB_WORKSPACE/debian_repo
+          rm Packages || echo "Failed to remove packages file"
+          rm Packages.gz || echo "Failed to remove packages.gz file"
+          rm Release || echo "Failed to remove release file"
+          rm Release.gpg || echo "Failed to remove release.gpg file"
+          rm InRelease || echo "Failed to remove inrelease file"
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+          apt-ftparchive release . > Release
+          gpg --default-key LesVu -abs -o - Release > Release.gpg || error "failed to sign Release.gpg with gpg "
+          gpg --default-key LesVu --clearsign -o - Release > InRelease || error "failed to sign InRelease with gpg"
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
