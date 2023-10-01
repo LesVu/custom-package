@@ -1,1 +1,1 @@
-deb [signed-by=/etc/apt/trusted.gpg.d/lesvu_repo.gpg] https://lesvu.github.io/debian_repo ./
+deb [signed-by=/etc/apt/trusted.gpg.d/lesvu_repo.gpg] https://lesvu.github.io/custom-package/debian_repo ./
