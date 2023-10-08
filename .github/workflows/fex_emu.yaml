@@ -67,7 +67,7 @@ jobs:
             cd fex
             mkdir Build
             cd Build
-            CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
+            CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LLD=True -DBUILD_TESTS=False -DOVERRIDE_VERSION=detect -DENABLE_ASSERTIONS=False -G Ninja ..
             ninja
             cpack -G DEB -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
             mv *.deb /artifacts
