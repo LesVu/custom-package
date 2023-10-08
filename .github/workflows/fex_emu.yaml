@@ -54,11 +54,11 @@ jobs:
 
           dockerfile_command: |
             RUN apt-get update && apt-get install -q -y \
-            git cmake ninja-build pkg-config ccache clang llvm lld binfmt-support \
-            libsdl2-dev libepoxy-dev libssl-dev python-setuptools g++-x86-64-linux-gnu \
+            git cmake ninja-build build-essential pkg-config ccache clang llvm lld binfmt-support \
+            libsdl2-dev libepoxy-dev libssl-dev python3-setuptools g++-x86-64-linux-gnu \
             libgcc-12-dev-i386-cross libgcc-12-dev-amd64-cross nasm python3-clang \
             libstdc++-12-dev-i386-cross libstdc++-12-dev-amd64-cross libstdc++-12-dev-arm64-cross \
-            squashfs-tools squashfuse glibc-tools libc6-dev-i386-amd64-cross \
+            squashfs-tools squashfuse libc-bin libc6-dev-i386-amd64-cross \
             lib32stdc++-12-dev-amd64-cross \
             && rm -rf /var/lib/apt/lists/*
 
