@@ -6,10 +6,10 @@ Installed-Size: 26769
 Depends: libc6, libstdc++6, libepoxy0, libsdl2-2.0-0, libegl1, libx11-6, squashfuse
 Conflicts: , qemu-user-static
 Filename: ./pool/fex-emu_0000.0.0_arm64.deb
-Size: 9712172
-MD5sum: 248d2e124cd381da156fe9edf5260206
-SHA1: 8d5c785e7709a8fa3f26c5c5a16dfd16907f81e6
-SHA256: 278695c8de21e9330ccd1cae58b76f1c1ecc0cf21531900f920d679cdf24687e
+Size: 9712102
+MD5sum: 80d0a1fdedd28b033fe0748c12fc95ad
+SHA1: 336d3a8ca61c194d691ecf8b69723b7ef14e0d5e
+SHA256: 2f88d5c0dbf50d73d6a436ccff953b3495019d6fa540b01d6163101a8ebc55e7
 Section: devel
 Priority: optional
 Description: x86 and x86-64 Linux emulator
