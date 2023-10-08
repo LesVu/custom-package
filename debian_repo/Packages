@@ -5,6 +5,24 @@ Maintainer: FEX-Emu Maintainers <team@fex-emu.com>
 Installed-Size: 26769
 Depends: libc6, libstdc++6, libepoxy0, libsdl2-2.0-0, libegl1, libx11-6, squashfuse
 Conflicts: , qemu-user-static
+Filename: ./pool/fex-emu-FEX-0000_aarch64.deb
+Size: 9712148
+MD5sum: ee1aa1eba34e0fde151beb792b5e7244
+SHA1: 22940200d340172553a4643cb3eee001c4a5f819
+SHA256: 4ec8244bffd260402d201036034cec0dc5b497fa250d4468cbdab13fcfdc7491
+Section: devel
+Priority: optional
+Description: x86 and x86-64 Linux emulator
+ .
+ FEX is very much work in progress, so expect things to change.
+
+Package: fex-emu
+Version: 0000.0.0
+Architecture: arm64
+Maintainer: FEX-Emu Maintainers <team@fex-emu.com>
+Installed-Size: 26769
+Depends: libc6, libstdc++6, libepoxy0, libsdl2-2.0-0, libegl1, libx11-6, squashfuse
+Conflicts: , qemu-user-static
 Filename: ./pool/fex-emu_0000.0.0_arm64.deb
 Size: 9712102
 MD5sum: 80d0a1fdedd28b033fe0748c12fc95ad
