@@ -6,7 +6,7 @@ on:
 jobs:
   hyprland-arm64:
     name: Build package on arm64
-    runs-on: ubuntu-22.04
+    runs-on: self-runner
 
     steps:
       - name: checkout
@@ -20,55 +20,87 @@ jobs:
           ref: v0.30.0
           submodules: recursive
 
-      - name: Running build
-        uses: LesVu/run-on-arch-action@main
-        with:
-          arch: aarch64
-          distro: bookworm
-          #base_image: arm64v8/r-base
-          # base_image: --platform=linux/arm64 debian:bookworm
-          setup: |
-            mkdir -p "${PWD}/artifacts"
+      # - name: Running build
+      #   uses: LesVu/run-on-arch-action@main
+      #   with:
+      #     arch: aarch64
+      #     distro: bookworm
+      #     #base_image: arm64v8/r-base
+      #     # base_image: --platform=linux/arm64 debian:bookworm
+      #     setup: |
+      #       mkdir -p "${PWD}/artifacts"
 
-          env: | # YAML, but pipe character is necessary
-            DESTDIR: /artifacts
+      #     env: | # YAML, but pipe character is necessary
+      #       DESTDIR: /artifacts
 
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
+      #     # Mount the artifacts directory as /artifacts in the container
+      #     dockerRunArgs: |
+      #       --volume "${PWD}/artifacts:/artifacts"
 
-          dockerfile_command: |
-            RUN echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
+      #     dockerfile_command: |
+      #       RUN echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
 
-            RUN apt-get update && apt-get install -q -y \
-            git jq build-essential ninja-build meson hwdata libcairo2-dev libpango1.0-dev wget cmake-extras \
-            cmake gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxml2-dev libdrm-dev libxkbcommon-x11-dev libxkbregistry-dev \
-            libxkbcommon-dev libpixman-1-dev libudev-dev libseat-dev seatd libxcb-dri3-dev libvulkan-dev libvulkan-volk-dev  vulkan-validationlayers-dev \
-            libvkfft-dev libgulkan-dev libegl-dev libgles2 libegl1-mesa-dev glslang-tools libxcb-composite0-dev libavutil-dev \
-            libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr \
-            && rm -rf /var/lib/apt/lists/*
+      #       RUN apt-get update && apt-get install -q -y \
+      #       git jq build-essential ninja-build meson hwdata libcairo2-dev libpango1.0-dev wget cmake-extras \
+      #       cmake gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxml2-dev libdrm-dev libxkbcommon-x11-dev libxkbregistry-dev \
+      #       libxkbcommon-dev libpixman-1-dev libudev-dev libseat-dev seatd libxcb-dri3-dev libvulkan-dev libvulkan-volk-dev  vulkan-validationlayers-dev \
+      #       libvkfft-dev libgulkan-dev libegl-dev libgles2 libegl1-mesa-dev glslang-tools libxcb-composite0-dev libavutil-dev \
+      #       libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr \
+      #       && rm -rf /var/lib/apt/lists/*
 
-            RUN apt-get update && apt-get build-dep -q -y \
-            wlroots wayland libinput \
-            && rm -rf /var/lib/apt/lists/* && apt-get purge libinput-dev libinput-bin -q -y
+      #       RUN apt-get update && apt-get build-dep -q -y \
+      #       wlroots wayland libinput \
+      #       && rm -rf /var/lib/apt/lists/* && apt-get purge libinput-dev libinput-bin -q -y
 
-          run: |
-            cd Hyprland
-            for i in ../patch/hyprland/*.patch; do
-              echo === $i
-              patch -p1 < $i
-            done
-            cd subprojects
-            git clone https://gitlab.freedesktop.org/libinput/libinput --quiet
-            git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
-            git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
-            git clone https://github.com/emersion/libliftoff --quiet
-            cd ..
-            meson build
-            ninja -C build
-            ninja -C build install
-            # cd build
-            # cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=hyprland -D CPACK_DEBIAN_PACKAGE_VERSION=0.30.0 -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
+      #     run: |
+      #       cd Hyprland
+      #       for i in ../patch/hyprland/*.patch; do
+      #         echo === $i
+      #         patch -p1 < $i
+      #       done
+      #       cd subprojects
+      #       git clone https://gitlab.freedesktop.org/libinput/libinput --quiet
+      #       git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
+      #       git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
+      #       git clone https://github.com/emersion/libliftoff --quiet
+      #       cd ..
+      #       meson build
+      #       ninja -C build
+      #       ninja -C build install
+      #       # cd build
+      #       # cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=hyprland -D CPACK_DEBIAN_PACKAGE_VERSION=0.30.0 -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
+      
+      - name: Deps
+        run: |
+          echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
+          apt-get update && apt-get install -q -y \
+          git jq build-essential ninja-build meson hwdata libcairo2-dev libpango1.0-dev wget cmake-extras \
+          cmake gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxml2-dev libdrm-dev libxkbcommon-x11-dev libxkbregistry-dev \
+          libxkbcommon-dev libpixman-1-dev libudev-dev libseat-dev seatd libxcb-dri3-dev libvulkan-dev libvulkan-volk-dev  vulkan-validationlayers-dev \
+          libvkfft-dev libgulkan-dev libegl-dev libgles2 libegl1-mesa-dev glslang-tools libxcb-composite0-dev libavutil-dev \
+          libavcodec-dev libavformat-dev libxcb-ewmh2 libxcb-ewmh-dev libxcb-present-dev libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libxcb-xinput-dev xdg-desktop-portal-wlr
+          apt-get update && apt-get build-dep -q -y \
+          wlroots wayland libinput \
+          && rm -rf /var/lib/apt/lists/* && apt-get purge libinput-dev libinput-bin -q -y
+        
+      - name: Build
+        run: |
+          cd Hyprland
+          for i in ../patch/hyprland/*.patch; do
+            echo === $i
+            patch -p1 < $i
+          done
+          cd subprojects
+          git clone https://gitlab.freedesktop.org/libinput/libinput --quiet
+          git clone https://gitlab.freedesktop.org/wayland/wayland --quiet
+          git clone https://gitlab.freedesktop.org/emersion/libdisplay-info --quiet
+          git clone https://github.com/emersion/libliftoff --quiet
+          cd ..
+          meson build
+          ninja -C build
+          ninja -C build install
+          # cd build
+          # cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=hyprland -D CPACK_DEBIAN_PACKAGE_VERSION=0.30.0 -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
 
       - name: Packaging the build
         run: |
