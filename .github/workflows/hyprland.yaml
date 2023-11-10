@@ -7,7 +7,6 @@ jobs:
   hyprland-arm64:
     name: Build package on arm64
     runs-on: self-runner
-    container: debian:bookworm
 
     steps:
       - name: checkout
