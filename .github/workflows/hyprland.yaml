@@ -6,7 +6,7 @@ on:
 jobs:
   hyprland-arm64:
     name: Build package on arm64
-    runs-on: self-runner
+    runs-on: self-hosted
 
     steps:
       - name: checkout
