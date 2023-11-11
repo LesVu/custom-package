@@ -32,7 +32,7 @@ jobs:
       - name: ccache cache files
         uses: actions/cache/restore@v3
         with:
-          path: ccache
+          path: /root/.ccache
           key: fex-bookworm-arm64-ccache-
 
       # - name: Running build
@@ -85,19 +85,19 @@ jobs:
       
       - name: Build
         run: |
-          mkdir -p ${PWD}/artifacts
+          mkdir -p artifacts
           cd fex
           mkdir Build
           cd Build
           CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
           ninja
           cpack -G DEB
-          mv *.deb ${PWD}/artifacts
+          mv *.deb ../../artifacts
 
       - uses: actions/cache/save@v3
         if: always()
         with:
-          path: ccache
+          path: /root/.ccache
           key: fex-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Move to debian repo
