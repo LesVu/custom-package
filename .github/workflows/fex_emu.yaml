@@ -80,7 +80,7 @@ jobs:
           libgcc-12-dev-i386-cross libgcc-12-dev-amd64-cross nasm python3-clang \
           libstdc++-12-dev-i386-cross libstdc++-12-dev-amd64-cross libstdc++-12-dev-arm64-cross \
           squashfs-tools squashfuse libc-bin libc6-dev-i386-amd64-cross \
-          lib32stdc++-12-dev-amd64-cross \
+          lib32stdc++-12-dev-amd64-cross apt-utils \
           && rm -rf /var/lib/apt/lists/*
       
       - name: Build
