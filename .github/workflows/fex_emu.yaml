@@ -91,7 +91,7 @@ jobs:
           cd Build
           CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
           ninja
-          cpack -G DEB
+          cpack -G DEB -D CPACK_DEBIAN_PACKAGE_CONFLICTS="qemu-user-static, box64, box86"
           mv *.deb ../../artifacts
 
       - uses: actions/cache/save@v3
