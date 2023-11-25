@@ -4,12 +4,12 @@ Architecture: arm64
 Maintainer: FEX-Emu Maintainers <team@fex-emu.com>
 Installed-Size: 27291
 Depends: libc6, libstdc++6, libepoxy0, libsdl2-2.0-0, libegl1, libx11-6, squashfuse
-Conflicts: , qemu-user-static
+Conflicts: qemu-user-static, box64, box86
 Filename: ./pool/fex-emu-FEX-2311_aarch64.deb
-Size: 9837564
-MD5sum: 2e5e378a5a50b4493e8f48f4a653a63f
-SHA1: 36fcd04e563c7dcdbabd4f3149ef5277f261d956
-SHA256: 9d48981f761cfb26304f728402cc176e0ac66c2efcf69e3e7f883e96d1aee333
+Size: 9837728
+MD5sum: 9084a7b6b66f7d50c824679ece235953
+SHA1: 2924a7f7773496f8144de7fdca7c9a5eacdf874d
+SHA256: 2d0f8f46ab2795bcff1a2e9c81287957c34710e4956f272fda717d0618e39d99
 Section: devel
 Priority: optional
 Description: x86 and x86-64 Linux emulator
