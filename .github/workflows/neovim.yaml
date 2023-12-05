@@ -6,7 +6,7 @@ on:
 jobs:
   neovim-debian:
     name: Build package on arm64
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     steps:
       - name: checkout
@@ -26,49 +26,34 @@ jobs:
         shell: bash
 
       - name: Mkdir
-        run: mkdir -p "${PWD}/ccache"
+        run: |
+          rm -rf ~/.ccache
+          mkdir -p ~/.ccache
 
       - name: ccache cache files
         uses: actions/cache/restore@v3
         with:
-          path: ccache
+          path: ~/.ccache
           key: neovim_arm64-ccache-
 
-      - name: Running build
-        uses: LesVu/run-on-arch-action@main
-        with:
-          arch: aarch64
-          distro: bookworm
-          #base_image: arm64v8/r-base
-          # base_image: --platform=linux/arm64 debian:bookworm
-          setup: |
-            mkdir -p "${PWD}/artifacts"
+      - name: Install Build deps
+        run: |
+          apt-get update && apt-get install -q -y \
+          git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip \
+          software-properties-common curl libunibilium-dev
 
-          # env: | # YAML, but pipe character is necessary
-          #   DESTDIR: /artifacts
-
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
-            --volume "${PWD}/ccache:/root/.ccache"
-
-          dockerfile_command: |
-            RUN apt-get update && apt-get install -q -y \
-            git jq build-essential ccache libtool-bin tar unzip ninja-build gettext cmake unzip \
-            software-properties-common curl libunibilium-dev \
-            && rm -rf /var/lib/apt/lists/*
-
-          run: |
-            cd neovim
-            make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
-            cd build
-            cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=neovim -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
-            mv *.deb /artifacts
+      - name: Build
+        run: |
+          cd neovim
+          make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
+          cd build
+          cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=neovim -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
+          mv *.deb /artifacts
 
       - uses: actions/cache/save@v3
         if: always()
         with:
-          path: ccache
+          path: ~/.ccache
           key: neovim_arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Move to debian repo
