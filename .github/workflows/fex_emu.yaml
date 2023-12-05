@@ -17,7 +17,7 @@ jobs:
         with:
           repository: FEX-Emu/FEX
           path: fex
-          ref: FEX-2311
+          ref: FEX-2312
           submodules: recursive
 
       - name: Get Date
@@ -27,12 +27,12 @@ jobs:
         shell: bash
 
       - name: Mkdir
-        run: mkdir -p "${PWD}/ccache"
+        run: mkdir -p ~/.ccache
 
       - name: ccache cache files
         uses: actions/cache/restore@v3
         with:
-          path: /root/.ccache
+          path: ~/.ccache
           key: fex-bookworm-arm64-ccache-
 
       # - name: Running build
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/cache/save@v3
         if: always()
         with:
-          path: /root/.ccache
+          path: ~/.ccache
           key: fex-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Move to debian repo
