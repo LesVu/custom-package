@@ -44,11 +44,12 @@ jobs:
 
       - name: Build
         run: |
+          mkdir -p artifacts
           cd neovim
-          make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release
+          make NVIM_BUILD_TYPE=Release CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr
           cd build
           cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=neovim -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
-          mv *.deb /artifacts
+          mv *.deb ../../artifacts
 
       - uses: actions/cache/save@v3
         if: always()
