@@ -14,7 +14,7 @@ jobs:
 
       - name: Install deps
         run: |
-          echo "deb-src http://deb.debian.org/debian/ bullseye contrib main non-free non-free-firmware" >> /etc/apt/sources.list
+          echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" >> /etc/apt/sources.list
           apt-get update -q -y > /dev/null
           apt-get build-dep wayland -q -y > /dev/null
           apt-get build-dep mesa -q -y > /dev/null
