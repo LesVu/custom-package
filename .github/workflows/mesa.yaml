@@ -56,7 +56,7 @@ jobs:
 
           # Mesa
           cd mesa
-          meson build --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig -Dvulkan-drivers=broadcom,freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=v3d,freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=release --prefix=/opt/mesa
+          meson build --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig -Dvulkan-drivers=broadcom,freedreno,virtio,panfrost,swrast -Dgallium-drivers=v3d,freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=release --prefix=/opt/mesa
           ninja -C build -j 6
           ninja -C build install
           cd ..
