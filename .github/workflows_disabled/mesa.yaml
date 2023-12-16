@@ -6,89 +6,71 @@ on:
 jobs:
   mesa-arm64:
     name: Build package on arm64
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: checkout
         uses: actions/checkout@v3
 
-      - name: Running build
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: none
-          distro: none
-          #base_image: arm64v8/r-base
-          base_image: --platform=linux/arm64 debian:bullseye
-          githubToken: ${{ github.token }}
-          setup: |
-            mkdir -p "${PWD}/artifacts"
-
-          # env: | # YAML, but pipe character is necessary
-          #   DESTDIR: /artifacts
-
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
-
-          install: |
-            echo "deb-src http://deb.debian.org/debian/ bullseye contrib main non-free non-free-firmware" >> /etc/apt/sources.list
-
-            apt-get update -q -y > /dev/null
-
-            apt-get build-dep wayland -q -y > /dev/null
-            apt-get build-dep mesa -q -y > /dev/null
-            apt-get build-dep libdrm -q -y > /dev/null
-            apt-get -q -y install python3-dev x11proto-gl-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libx11-xcb-dev \
-            libxcb-glx0-dev libxxf86vm-dev libxcb-dri2-0-dev libxcb-xfixes0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev \
-            libxshmfence-dev libxrandr-dev llvm-dev python3-mako python3-pip python3-setuptools \
-            pkg-config build-essential zlib1g-dev git bison flex libxcb-shm0-dev > /dev/null
-            apt purge -q -y meson > /dev/null
-            pip3 install meson
-
-          run: |
-            git clone https://gitlab.freedesktop.org/mesa/drm.git -b libdrm-2.4.116
-            git clone https://gitlab.freedesktop.org/wayland/wayland-protocols.git -b 1.32
-            git clone https://gitlab.freedesktop.org/mesa/mesa.git -b mesa-23.1.7
-            git clone https://gitlab.freedesktop.org/wayland/wayland.git -b 1.22.0
-
-            # export PKG_CONFIG_PATH=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
-
-            # DRM
-            cd drm
-            meson build -Dnouveau=disabled -Dvc4=disabled -Dfreedreno=enabled -Dtegra=disabled -Dexynos=disabled -Detnaviv=disabled -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dvmwgfx=disabled -Domap=disabled --prefix=/opt/mesa
-            ninja -C build -j 2
-            ninja -C build install
-            cd ..
-
-            # Wayland
-            cd wayland
-            meson build --buildtype=release --prefix=/opt/mesa -Dtests=false -Ddocumentation=false
-            ninja -C build -j 2
-            ninja -C build install
-            cd ..
-
-            # Wayland-Protocols
-            cd wayland-protocols
-            meson build --buildtype=release --prefix=/opt/mesa -Dtests=false --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig
-            ninja -C build -j 2
-            ninja -C build install
-            cd ..
-
-            # Mesa
-            cd mesa
-            meson build --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig -Dvulkan-drivers=freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=debugoptimized --prefix=/opt/mesa
-            ninja -C build -j 2
-            ninja -C build install
-            cd ..
-
-            tar -cvf /artifacts/mesa.tar /opt/mesa
-
-      - name: Move the build
+      - name: Install deps
         run: |
-          mv ${PWD}/artifacts/mesa.tar .
+          echo "deb-src http://deb.debian.org/debian/ bullseye contrib main non-free non-free-firmware" >> /etc/apt/sources.list
+          apt-get update -q -y > /dev/null
+          apt-get build-dep wayland -q -y > /dev/null
+          apt-get build-dep mesa -q -y > /dev/null
+          apt-get build-dep libdrm -q -y > /dev/null
+          apt-get -q -y install python3-dev x11proto-gl-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libx11-xcb-dev \
+          libxcb-glx0-dev libxxf86vm-dev libxcb-dri2-0-dev libxcb-xfixes0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev \
+          libxshmfence-dev libxrandr-dev llvm-dev python3-mako python3-pip python3-setuptools \
+          pkg-config build-essential zlib1g-dev git bison flex libxcb-shm0-dev > /dev/null
+          apt purge -q -y meson > /dev/null
+          pip3 install meson
+
+          git clone https://gitlab.freedesktop.org/mesa/drm.git -b libdrm-2.4.118
+          git clone https://gitlab.freedesktop.org/wayland/wayland-protocols.git -b 1.32
+          git clone https://gitlab.freedesktop.org/mesa/mesa.git -b mesa-23.3.1
+          git clone https://gitlab.freedesktop.org/wayland/wayland.git -b 1.22.0
+
+          rm -rf /opt/mesa
+
+      - name: Build
+        run: |
+          # DRM
+          cd drm
+          meson build -Dnouveau=disabled -Dvc4=enabled -Dfreedreno=enabled -Dtegra=disabled -Dexynos=disabled -Detnaviv=disabled -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dvmwgfx=disabled -Domap=disabled --prefix=/opt/mesa
+          ninja -C build -j 4
+          ninja -C build install
+          cd ..
+
+          # Wayland
+          cd wayland
+          meson build --buildtype=release --prefix=/opt/mesa -Dtests=false -Ddocumentation=false
+          ninja -C build -j 4
+          ninja -C build install
+          cd ..
+
+          # Wayland-Protocols
+          cd wayland-protocols
+          meson build --buildtype=release --prefix=/opt/mesa -Dtests=false --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig
+          ninja -C build -j 4
+          ninja -C build install
+          cd ..
+
+          # Mesa
+          cd mesa
+          meson build --pkg-config-path=/opt/mesa/lib/aarch64-linux-gnu/pkgconfig,/opt/mesa/share/pkgconfig -Dvulkan-drivers=broadcom,freedreno,virtio-experimental,panfrost,swrast -Dgallium-drivers=v3d,freedreno,zink,panfrost,virgl,kmsro,swrast -Dlibunwind=disabled -Dplatforms=x11,wayland -Dglx=dri -Degl=enabled -Ddri3=enabled -Dglvnd=false -Dgles1=enabled -Dgles2=enabled -Dllvm=enabled -Dshared-glapi=enabled -Dbuildtype=release --prefix=/opt/mesa
+          ninja -C build -j 6
+          ninja -C build install
+          cd ..
+
+          tar -czvf mesa.tar.gz /opt/mesa
+
+      # - name: Move the build
+      #   run: |
+      #     mv ${PWD}/artifacts/mesa.tar .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: mesa
-          path: mesa.tar
+          path: mesa.tar.gz

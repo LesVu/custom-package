@@ -34,43 +34,6 @@ jobs:
         with:
           path: ~/.ccache
           key: fex-bookworm-arm64-ccache-
-
-      # - name: Running build
-      #   uses: LesVu/run-on-arch-action@main
-      #   with:
-      #     arch: aarch64
-      #     distro: bookworm
-      #     #base_image: arm64v8/r-base
-      #     # base_image: --platform=linux/arm64 debian:bookworm
-      #     setup: |
-      #       mkdir -p "${PWD}/artifacts"
-
-      #     # env: | # YAML, but pipe character is necessary
-      #     #   DESTDIR: /artifacts
-
-      #     # Mount the artifacts directory as /artifacts in the container
-      #     dockerRunArgs: |
-      #       --volume "${PWD}/artifacts:/artifacts"
-      #       --volume "${PWD}/ccache:/root/.ccache"
-
-      #     dockerfile_command: |
-      #       RUN apt-get update && apt-get install -q -y \
-      #       git cmake ninja-build build-essential pkg-config ccache clang llvm lld binfmt-support \
-      #       libsdl2-dev libepoxy-dev libssl-dev python3-setuptools g++-x86-64-linux-gnu \
-      #       libgcc-12-dev-i386-cross libgcc-12-dev-amd64-cross nasm python3-clang \
-      #       libstdc++-12-dev-i386-cross libstdc++-12-dev-amd64-cross libstdc++-12-dev-arm64-cross \
-      #       squashfs-tools squashfuse libc-bin libc6-dev-i386-amd64-cross \
-      #       lib32stdc++-12-dev-amd64-cross \
-      #       && rm -rf /var/lib/apt/lists/*
-
-      #     run: |
-      #       cd fex
-      #       mkdir Build
-      #       cd Build
-      #       CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LLD=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja ..
-      #       ninja
-      #       cpack -G DEB
-      #       mv *.deb /artifacts
       
       - name: Install deps
         run: |

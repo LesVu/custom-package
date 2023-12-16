@@ -17,7 +17,7 @@ jobs:
         with:
           repository: hyprwm/Hyprland
           path: Hyprland
-          ref: v0.30.0
+          ref: v0.33.1
           submodules: recursive
 
       # - name: Running build
@@ -100,7 +100,7 @@ jobs:
           ninja -C build
           ninja -C build install
           # cd build
-          # cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=hyprland -D CPACK_DEBIAN_PACKAGE_VERSION=0.30.0 -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
+          # cpack -G DEB -D CPACK_DEBIAN_PACKAGE_NAME=hyprland -D CPACK_DEBIAN_PACKAGE_VERSION=0.33.1 -D CPACK_DEBIAN_FILE_NAME=DEB-DEFAULT
 
       - name: Packaging the build
         run: |
