@@ -43,7 +43,7 @@ jobs:
       - name: Build
         run: |
           cd blender
-          gbp buildpackage --git-no-create-orig --git-upstream-signatures=off --git-ignore-branch
+          gbp buildpackage --git-no-create-orig --git-ignore-branch --no-interactive
           cd ..
           ls -lah
 
