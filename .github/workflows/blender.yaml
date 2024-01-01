@@ -43,7 +43,7 @@ jobs:
       - name: Build
         run: |
           cd blender
-          gbp buildpackage --git-upstream-signatures=off --git-ignore-branch
+          gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
           cd ..
           ls -lah
 
