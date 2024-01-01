@@ -56,6 +56,7 @@ jobs:
 
       - name: Move to debian repo
         run: |
+          rm -rf *dbgsym*.deb
           mv *.deb debian_repo/pool
 
       - name: Import GPG key
