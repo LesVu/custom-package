@@ -1,3 +1,55 @@
+Package: blender
+Version: 4.0.2+dfsg-1
+Architecture: arm64
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Installed-Size: 76560
+Depends: blender-data (= 4.0.2+dfsg-1), fonts-dejavu, libavcodec59 (>= 7:5.0), libavdevice59 (>= 7:5.0), libavformat59 (>= 7:5.0), libavutil57 (>= 7:5.1), libboost-locale1.74.0 (>= 1.74.0+ds1), libc6 (>= 2.35), libepoxy0 (>= 1.3), libfftw3-double3 (>= 3.3.10), libfftw3-single3 (>= 3.3.10), libfreetype6 (>= 2.9.1), libgcc-s1 (>= 4.5), libgmp10 (>= 2:6.2.1+dfsg1), libgomp1 (>= 6), libimath-3-1-29 (>= 3.1.6), libjack-jackd2-0 (>= 1.9.10+20150825) | libjack-0.125, libjemalloc2 (>= 5.3.0), libjpeg62-turbo (>= 1.3.1), libopenal1 (>= 1.14), libopencolorio2.1 (>= 2.1.2+dfsg1), libopenexr-3-1-30 (>= 3.1.5), libopenimageio2.4 (>= 2.4.7.1+dfsg), libopenjp2-7 (>= 2.0.0), libosdcpu3.5.0 (>= 3.5.0), libosdgpu3.5.0 (>= 3.5.0), libpcre3, libpng16-16 (>= 1.6.2-1), libpotrace0, libpugixml1v5 (>= 1.6), libpulse0 (>= 0.99.1), libpython3.11 (>= 3.11.0), libsdl2-2.0-0 (>= 2.0.12), libsndfile1 (>= 1.0.20), libspnav0 (>= 1.0), libstdc++6 (>= 12), libswscale6 (>= 7:5.0), libtbb12 (>= 2021.8.0), libwebp7 (>= 1.2.4), libx11-6, libxfixes3 (>= 1:4.0.1), libxi6 (>= 2:1.1.2), libxml2 (>= 2.7.4), libxxf86vm1, libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.3.4)
+Filename: ./pool/blender_4.0.2+dfsg-1_arm64.deb
+Size: 20801096
+MD5sum: 083ebf150b202e2121e8793d389c4581
+SHA1: 2fbb63d9c81f68968d464bd1cf8f573536e41d5a
+SHA256: 1b60db5921930669bb4afa828deb9e8fd7332e4495c284ee29df43b4efedeab0
+Section: graphics
+Priority: optional
+Homepage: http://www.blender.org/
+Description: Very fast and versatile 3D modeller/renderer
+ Blender is an integrated 3d suite for modelling, animation, rendering,
+ post-production, interactive creation and playback (games). Blender has its
+ own particular user interface, which is implemented entirely in OpenGL and
+ designed with speed in mind. Python bindings are available for scripting;
+ import/export features for popular file formats like 3D Studio and Wavefront
+ Obj are implemented as scripts by the community. Stills, animations, models
+ for games or other third party engines and interactive content in the form of
+ a standalone binary are common products of Blender use.
+
+Package: blender-data
+Source: blender
+Version: 4.0.2+dfsg-1
+Architecture: all
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Installed-Size: 103475
+Depends: python3
+Replaces: blender (<< 2.67b-1~)
+Filename: ./pool/blender-data_4.0.2+dfsg-1_all.deb
+Size: 35099464
+MD5sum: 1053f561764fcb648d439124409bd6af
+SHA1: 5854c22ed6b825c1506d9517f8ef70683f4a31ac
+SHA256: 6de5a6aa04bb45ac65ab88a20961576ccdd0675c3717ed72b20c843a911e2968
+Section: graphics
+Priority: optional
+Homepage: http://www.blender.org/
+Description: Very fast and versatile 3D modeller/renderer - data package
+ Blender is an integrated 3d suite for modelling, animation, rendering,
+ post-production, interactive creation and playback (games). Blender has its
+ own particular user interface, which is implemented entirely in OpenGL and
+ designed with speed in mind. Python bindings are available for scripting;
+ import/export features for popular file formats like 3D Studio and Wavefront
+ Obj are implemented as scripts by the community. Stills, animations, models
+ for games or other third party engines and interactive content in the form of
+ a standalone binary are common products of Blender use.
+ .
+ This package contains documentation, libraries and images for blender.
+
 Package: fex-emu
 Version: 2311.0.0
 Architecture: arm64
