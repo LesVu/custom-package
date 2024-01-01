@@ -57,7 +57,7 @@ jobs:
       - name: Move to debian repo
         run: |
           rm -rf *dbgsym*.deb
-          mv *.deb debian_repo/pool
+          cp *.deb debian_repo/pool
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
@@ -85,3 +85,10 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           file_pattern: "debian_repo/*"
+
+      - name: Upload Artifact
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: blender
+          path: *.deb
