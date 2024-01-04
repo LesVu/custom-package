@@ -1,0 +1,107 @@
+name: Build Mesa
+
+on:
+  workflow_dispatch:
+
+jobs:
+  blender-debian:
+    name: Build latest mesa on arm64
+    runs-on: self-hosted
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: checkout mesa and deps
+        run: |
+          # git clone --recursive --depth 1 -b libdrm-2.4.117-1 https://salsa.debian.org/xorg-team/lib/libdrm.git
+          # git clone --recursive --depth 1 -b wayland-1.22.0-2 https://salsa.debian.org/xorg-team/wayland/wayland.git
+          # git clone --recursive --depth 1 -b debian/1.32-1 https://salsa.debian.org/xorg-team/wayland/wayland-protocols.git
+          git clone --recursive --depth 1 -b mesa-23.3.2-1 https://salsa.debian.org/xorg-team/lib/mesa.git
+
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "date=$(TZ='Asia/Singapore' /bin/date "+%I:%M%p_%d/%m/%Y")" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Mkdir
+        run: mkdir -p ~/.ccache
+
+      # - name: ccache cache files
+      #   uses: actions/cache/restore@v3
+      #   with:
+      #     path: ~/.ccache
+      #     key: mesa-bookworm-arm64-ccache-
+      
+      - name: Install deps
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          git config --global http.postBuffer 157286400
+          echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" > /etc/apt/sources.list
+          apt-get update && apt-get install -q -y \
+          git build-essential apt-utils git-buildpackage \
+          && rm -rf /var/lib/apt/lists/*
+          rm -rf /var/cache/pbuilder/*.cow
+          DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
+      
+      - name: Build
+        run: |
+          # cd libdrm
+          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          # cd ..
+          # cd wayland
+          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          # cd ..
+          # cd wayland-protocols
+          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          # cd ..
+          cd mesa
+          gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          cd ..
+          ls -lah
+
+      # - uses: actions/cache/save@v3
+      #   if: always()
+      #   with:
+      #     path: ~/.ccache
+      #     key: mesa-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
+
+      - name: Move to debian repo
+        run: |
+          rm -rf *dbgsym*.deb
+          cp *.deb debian_repo/pool
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: List GPG keys
+        run: gpg -K
+
+      - name: Write new package to repo
+        run: |
+          cd $GITHUB_WORKSPACE/debian_repo
+          rm Packages || echo "Failed to remove packages file"
+          rm Packages.gz || echo "Failed to remove packages.gz file"
+          rm Release || echo "Failed to remove release file"
+          rm Release.gpg || echo "Failed to remove release.gpg file"
+          rm InRelease || echo "Failed to remove inrelease file"
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+          apt-ftparchive release . > Release
+          gpg --default-key LesVu -abs -o - Release > Release.gpg || error "failed to sign Release.gpg with gpg "
+          gpg --default-key LesVu --clearsign -o - Release > InRelease || error "failed to sign InRelease with gpg"
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: "debian_repo/*"
+
+      - name: Upload Artifact
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: mesa
+          path: ./*.deb
