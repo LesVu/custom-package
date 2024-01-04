@@ -42,8 +42,8 @@ jobs:
           apt-get update && apt-get install -q -y \
           git build-essential apt-utils git-buildpackage \
           && rm -rf /var/lib/apt/lists/*
-          rm -rf /var/cache/pbuilder/*.cow
-          DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
+          # rm -rf /var/cache/pbuilder/*.cow
+          # DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
       
       - name: Build
         run: |
@@ -57,7 +57,7 @@ jobs:
           # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
           # cd ..
           cd mesa
-          gbp buildpackage --git-upstream-tag='v%(version)s' --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          gbp buildpackage --git-upstream-tag='mesa-%(version)s' --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
           cd ..
           ls -lah
 
