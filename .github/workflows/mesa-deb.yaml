@@ -57,7 +57,7 @@ jobs:
           # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
           # cd ..
           cd mesa
-          gbp buildpackage --git-upstream-tag='mesa-%(version)s' --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
+          gbp buildpackage --git-upstream-tree="mesa-23.3.2-1" --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
           cd ..
           ls -lah
 
