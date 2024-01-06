@@ -7,6 +7,7 @@ jobs:
   llvm-debian:
     name: Build package on arm64
     runs-on: self-hosted
+    timeout-minutes: 1440
 
     steps:
       - name: checkout
