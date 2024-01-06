@@ -40,7 +40,7 @@ jobs:
           git config --global http.postBuffer 157286400
           echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" > /etc/apt/sources.list
           apt-get update && apt-get install -q -y \
-          git build-essential apt-utils git-buildpackage dh-autoreconf quilt \
+          git build-essential apt-utils git-buildpackage dh-autoreconf quilt dh-ocaml time \
           && rm -rf /var/lib/apt/lists/*
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
