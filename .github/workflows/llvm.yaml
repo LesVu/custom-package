@@ -15,25 +15,6 @@ jobs:
       - name: checkout llvm
         run: git clone --recursive -b 17 https://salsa.debian.org/pkg-llvm-team/llvm-toolchain.git
 
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "date=$(TZ='Asia/Singapore' /bin/date "+%I:%M%p_%d/%m/%Y")" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Mkdir
-        run: |
-          sudo rm -rf /var/cache/pbuilder/ccache
-          install -d -m 2775 -o 1234 -g 1234 /var/cache/pbuilder/ccache
-          echo 'for i in $(echo {0..9}) $(echo {a..f}) tmp; do mkdir -p /var/cache/pbuilder/ccache/$i; done' | bash
-          chown -R 1234:1234 /var/cache/pbuilder/ccache
-
-      - name: ccache cache files
-        uses: actions/cache/restore@v3
-        with:
-          path: /var/cache/pbuilder/ccache
-          key: llvm-bookworm-arm64-ccache-
-
       - name: Install deps
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -43,16 +24,16 @@ jobs:
           git build-essential apt-utils git-buildpackage dh-autoreconf quilt dh-ocaml time libz3-dev cowbuilder \
           && rm -rf /var/lib/apt/lists/*
 
-          sudo cat <<EOF > "/etc/pbuilderrc"
-          export CCACHE_DIR="/var/cache/pbuilder/ccache"
-          export PATH="/usr/lib/ccache:${PATH}"
-          EXTRAPACKAGES="ccache"
-          BINDMOUNTS="${CCACHE_DIR}"
-          EOF
-          
+          # sudo cat <<EOF > "/etc/pbuilderrc"
+          # export CCACHE_DIR="/var/cache/pbuilder/ccache"
+          # export PATH="/usr/lib/ccache:${PATH}"
+          # EXTRAPACKAGES="ccache"
+          # BINDMOUNTS="${CCACHE_DIR}"
+          # EOF
+
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
-          echo "apt-mark hold hello hello-traditional && chown -R 1234:1234 /var/cache/pbuilder/ccache" > command.sh
+          echo "apt-mark hold hello hello-traditional" > command.sh
           cowbuilder execute --basepath /var/cache/pbuilder/base-bookworm.cow --distribution bookworm --save-after-exec -- ./command.sh
 
       - name: Build
@@ -62,12 +43,6 @@ jobs:
           gbp buildpackage --git-upstream-tree="17" --git-upstream-signatures=off --git-ignore-new --git-ignore-branch --git-pbuilder --git-dist=bookworm -i -us -uc -b
           cd ..
           ls -lah
-
-      - uses: actions/cache/save@v3
-        if: always()
-        with:
-          path: /var/cache/pbuilder/ccache
-          key: llvm-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Move to debian repo
         run: |
