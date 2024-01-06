@@ -39,7 +39,7 @@ jobs:
           git config --global http.postBuffer 157286400
           echo "deb-src http://deb.debian.org/debian/ bookworm contrib main non-free non-free-firmware" > /etc/apt/sources.list
           apt-get update && apt-get install -q -y \
-          git build-essential apt-utils git-buildpackage dh-autoreconf quilt dh-ocaml time libz3-dev \
+          git build-essential apt-utils git-buildpackage dh-autoreconf quilt dh-ocaml time libz3-dev cowbuilder \
           && rm -rf /var/lib/apt/lists/*
 
           sudo cat <<EOF > "/etc/pbuilderrc"
@@ -51,7 +51,8 @@ jobs:
 
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
-          DIST=bookworm git-pbuilder execute --save-after-exec "apt-get update && apt-mark hold hello hello-traditional"
+          echo "apt-mark hold hello hello-traditional" > command.sh
+          cowbuilder execute --basepath /var/cache/pbuilder/base-bookworm.cow --distribution bookworm --save-after-exec -- ./command.sh
 
       - name: Build
         run: |
