@@ -1,23 +1,19 @@
-name: Build Mesa
+name: Build LLVM
 
 on:
   workflow_dispatch:
 
 jobs:
-  blender-debian:
-    name: Build latest mesa on arm64
+  llvm-debian:
+    name: Build package on arm64
     runs-on: self-hosted
 
     steps:
       - name: checkout
         uses: actions/checkout@v3
 
-      - name: checkout mesa and deps
-        run: |
-          # git clone --recursive --depth 1 -b libdrm-2.4.117-1 https://salsa.debian.org/xorg-team/lib/libdrm.git
-          # git clone --recursive --depth 1 -b wayland-1.22.0-2 https://salsa.debian.org/xorg-team/wayland/wayland.git
-          # git clone --recursive --depth 1 -b debian/1.32-1 https://salsa.debian.org/xorg-team/wayland/wayland-protocols.git
-          git clone --recursive --depth 1 -b mesa-23.3.2-1 https://salsa.debian.org/xorg-team/lib/mesa.git
+      - name: checkout llvm
+        run: git clone --recursive -b 17 https://salsa.debian.org/pkg-llvm-team/llvm-toolchain.git
 
       - name: Get Date
         id: get-date
@@ -26,13 +22,16 @@ jobs:
         shell: bash
 
       - name: Mkdir
-        run: mkdir -p ~/.ccache
+        run: |
+          sudo install -d -m 2775 -o 1234 -g 1234 /var/cache/pbuilder/ccache
+          echo 'for i in $(echo {0..9}) $(echo {a..f}) tmp; do sudo mkdir -p /var/cache/pbuilder/ccache/$i; done' | bash
+          sudo chown -R 1234:1234 /var/cache/pbuilder/ccache
 
-      # - name: ccache cache files
-      #   uses: actions/cache/restore@v3
-      #   with:
-      #     path: ~/.ccache
-      #     key: mesa-bookworm-arm64-ccache-
+      - name: ccache cache files
+        uses: actions/cache/restore@v3
+        with:
+          path: /var/cache/pbuilder/ccache
+          key: llvm-bookworm-arm64-ccache-
       
       - name: Install deps
         run: |
@@ -42,30 +41,31 @@ jobs:
           apt-get update && apt-get install -q -y \
           git build-essential apt-utils git-buildpackage dh-autoreconf quilt dh-ocaml time libz3-dev \
           && rm -rf /var/lib/apt/lists/*
+
+          sudo cat <<EOF > "/etc/pbuilderrc"
+          export CCACHE_DIR="/var/cache/pbuilder/ccache"
+          export PATH="/usr/lib/ccache:${PATH}"
+          EXTRAPACKAGES="ccache"
+          BINDMOUNTS="${CCACHE_DIR}"
+          EOF
+
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
+          DIST=bookworm git-pbuilder exec --save-after-exec "apt-get update && apt-mark hold hello hello-traditional" 
       
       - name: Build
         run: |
-          # cd libdrm
-          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
-          # cd ..
-          # cd wayland
-          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
-          # cd ..
-          # cd wayland-protocols
-          # gbp buildpackage --git-upstream-signatures=off --git-ignore-branch -i -us -uc -b
-          # cd ..
-          cd mesa
-          gbp buildpackage --git-upstream-tree="mesa-23.3.2-1" --git-upstream-signatures=off --git-ignore-branch --git-pbuilder --git-dist=bookworm -i -us -uc -b
+          sh llvm-toolchain/debian/orig-tar.sh 17.0.6
+          cd llvm-toolchain
+          gbp buildpackage --git-upstream-tree="17" --git-upstream-signatures=off --git-ignore-new --git-ignore-branch --git-pbuilder --git-dist=bookworm -i -us -uc -b
           cd ..
           ls -lah
 
-      # - uses: actions/cache/save@v3
-      #   if: always()
-      #   with:
-      #     path: ~/.ccache
-      #     key: mesa-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
+      - uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: /var/cache/pbuilder/ccache
+          key: llvm-bookworm-arm64-ccache-${{ steps.get-date.outputs.date }}
 
       - name: Move to debian repo
         run: |
@@ -103,5 +103,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: mesa
+          name: llvm
           path: ./*.deb
