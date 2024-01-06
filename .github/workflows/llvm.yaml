@@ -32,7 +32,7 @@ jobs:
         with:
           path: /var/cache/pbuilder/ccache
           key: llvm-bookworm-arm64-ccache-
-      
+
       - name: Install deps
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -51,8 +51,8 @@ jobs:
 
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
-          DIST=bookworm git-pbuilder exec --save-after-exec "apt-get update && apt-mark hold hello hello-traditional" 
-      
+          DIST=bookworm git-pbuilder exec --save-after-exec "apt-get update && apt-mark hold hello hello-traditional"
+
       - name: Build
         run: |
           sh llvm-toolchain/debian/orig-tar.sh 17.0.6
@@ -70,7 +70,7 @@ jobs:
       - name: Move to debian repo
         run: |
           rm -rf *dbgsym*.deb
-          cp *.deb debian_repo/pool
+          cp *.deb debian/pool
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
@@ -82,7 +82,7 @@ jobs:
 
       - name: Write new package to repo
         run: |
-          cd $GITHUB_WORKSPACE/debian_repo
+          cd $GITHUB_WORKSPACE/debian
           rm Packages || echo "Failed to remove packages file"
           rm Packages.gz || echo "Failed to remove packages.gz file"
           rm Release || echo "Failed to remove release file"
@@ -97,7 +97,7 @@ jobs:
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          file_pattern: "debian_repo/*"
+          file_pattern: "debian/*"
 
       - name: Upload Artifact
         if: failure()

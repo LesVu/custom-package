@@ -59,7 +59,7 @@ jobs:
 
       - name: Move to debian repo
         run: |
-          mv artifacts/*.deb debian_repo/pool
+          mv artifacts/*.deb debian/pool
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
@@ -71,7 +71,7 @@ jobs:
 
       - name: Write new package to repo
         run: |
-          cd $GITHUB_WORKSPACE/debian_repo
+          cd $GITHUB_WORKSPACE/debian
           rm Packages || echo "Failed to remove packages file"
           rm Packages.gz || echo "Failed to remove packages.gz file"
           rm Release || echo "Failed to remove release file"
@@ -86,4 +86,4 @@ jobs:
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          file_pattern: "debian_repo/*"
+          file_pattern: "debian/*"
