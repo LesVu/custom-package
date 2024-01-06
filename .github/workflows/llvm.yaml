@@ -51,7 +51,7 @@ jobs:
 
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
-          DIST=bookworm git-pbuilder exec --save-after-exec "apt-get update && apt-mark hold hello hello-traditional"
+          DIST=bookworm git-pbuilder execute --save-after-exec "apt-get update && apt-mark hold hello hello-traditional"
 
       - name: Build
         run: |
