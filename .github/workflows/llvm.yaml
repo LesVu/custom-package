@@ -49,10 +49,10 @@ jobs:
           EXTRAPACKAGES="ccache"
           BINDMOUNTS="${CCACHE_DIR}"
           EOF
-          chown -R 1234:1234 /var/cache/pbuilder/ccache
+          
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
-          echo "apt-mark hold hello hello-traditional" > command.sh
+          echo "apt-mark hold hello hello-traditional && chown -R 1234:1234 /var/cache/pbuilder/ccache" > command.sh
           cowbuilder execute --basepath /var/cache/pbuilder/base-bookworm.cow --distribution bookworm --save-after-exec -- ./command.sh
 
       - name: Build
