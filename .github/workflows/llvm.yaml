@@ -23,9 +23,10 @@ jobs:
 
       - name: Mkdir
         run: |
-          sudo install -d -m 2775 -o 1234 -g 1234 /var/cache/pbuilder/ccache
-          echo 'for i in $(echo {0..9}) $(echo {a..f}) tmp; do sudo mkdir -p /var/cache/pbuilder/ccache/$i; done' | bash
-          sudo chown -R 1234:1234 /var/cache/pbuilder/ccache
+          sudo rm -rf /var/cache/pbuilder/ccache
+          install -d -m 2775 -o 1234 -g 1234 /var/cache/pbuilder/ccache
+          echo 'for i in $(echo {0..9}) $(echo {a..f}) tmp; do mkdir -p /var/cache/pbuilder/ccache/$i; done' | bash
+          chown -R 1234:1234 /var/cache/pbuilder/ccache
 
       - name: ccache cache files
         uses: actions/cache/restore@v3
@@ -48,7 +49,7 @@ jobs:
           EXTRAPACKAGES="ccache"
           BINDMOUNTS="${CCACHE_DIR}"
           EOF
-
+          chown -R 1234:1234 /var/cache/pbuilder/ccache
           rm -rf /var/cache/pbuilder/*.cow
           DIST=bookworm git-pbuilder create --mirror http://deb.debian.org/debian
           echo "apt-mark hold hello hello-traditional" > command.sh
