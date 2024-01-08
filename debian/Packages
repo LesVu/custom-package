@@ -131,3 +131,18 @@ Section: devel
 Priority: optional
 Description: Vim-fork focused on extensibility and usability.
 
+Package: neovim
+Version: 0.9.5
+Architecture: arm64
+Maintainer: Neovim.io
+Installed-Size: 32660
+Depends: libc6 (>= 2.34), libgcc-s1 (>= 4.2)
+Filename: ./pool/neovim_0.9.5_arm64.deb
+Size: 10600842
+MD5sum: e53cc41e8aa1493e4fd7e9004e69a075
+SHA1: 641321c9f29300e41632a49df42b08d0f5f67b76
+SHA256: 7941654e7b05f37ecb43c730a3d9c196a60b6bc86518add7242f7a98c27c90c1
+Section: devel
+Priority: optional
+Description: Vim-fork focused on extensibility and usability.
+
